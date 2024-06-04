@@ -1,36 +1,38 @@
-from utils.send_mail import send_mail
-from utils.pdf_generator import generate_pdf
 import sys
 
-
-
-
-
 def main(trigger, gene, mrna, cell_type, email):
-    ###logic###
+    print("Processing...")
+    # logic here
+    print(f"Trigger: {trigger}, Gene: {gene}, mRNA: {mrna}, Cell Type: {cell_type}, Email: {email}")
 
 
 
 
 
 
-    ## send results to client ##
-    pipeline_results = " "
-    generate_pdf(pipeline_results, f"./", order_by='')
-    send_mail(email, f"{pipeline_results.job_id}.pdf")
 
-
-
+    ## send results ##
+    #pipeline_results = " "
+    #generate_pdf()
+    #send_mail()
 
 
 if __name__ == '__main__':
+
+    if len(sys.argv) != 6:  # Expecting five arguments plus the script name
+        print("Invalid number of arguments.")
+        sys.exit(1)
+
+
     # parameters from flask form
-    trigger = sys.argv[1]
+    email = sys.argv[1]
     gene = sys.argv[2]
-    email = sys.argv[3]
-    cell_type = sys.argv[4]
-    mrna = sys.argv[5]
+    trigger = sys.argv[3]
+    mrna = sys.argv[4]
+    cell_type = sys.argv[5]
 
     # send to logic
     main(trigger, gene, mrna, cell_type, email)
+
+
 

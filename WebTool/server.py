@@ -1,9 +1,10 @@
 import subprocess
-from random import random
+import random
 from flask_wtf import FlaskForm, CSRFProtect
 from wtforms import StringField, BooleanField, SubmitField, SelectField
 from wtforms.validators import DataRequired
 from flask import Flask, render_template
+
 
 
 app = Flask(__name__)
@@ -32,54 +33,39 @@ class InputForm(FlaskForm):
 
 
 
-
 @app.route('/generate', methods=['GET', 'POST'])
-def generate():
-    email = None
-    gene = None
-    trigger = None
-    rna = None
-    cell_type = None
 
+def generate():
     input_form = InputForm()
     if input_form.validate_on_submit():
-        try:
-            trigger = input_form.trigger.data.upper()
-            gene = input_form.gene.data.upper()
-        except:
-            pass
-        try:
-            rna = input_form.rna.data.upper()
-        except:
-            pass
-
-        # Get the data from the form
+        # Get the data from the form and process it
         email = input_form.email.data
-        gene = input_form.gene.data
-        trigger = input_form.trigger.data
-        mrna = input_form.rna.data
+        gene = input_form.gene.data.upper()
+        trigger = input_form.trigger.data.upper()
+        mrna = input_form.rna.data.upper()
         cell_type = input_form.cell_type.data
 
+        # Prepare the arguments for the subprocess
+        args = [str(email), gene, trigger, mrna, cell_type]
 
-        s_email = str(email) if email else "EMPTY"
-        s_gene = str(gene) if gene else "EMPTY"
-        s_trigger = str(trigger) if trigger else "EMPTY"
-        s_mrna = str(mrna) if mrna else "EMPTY"
-        s_cell_type = str(cell_type) if cell_type else "EMPTY"
+        try:
+            # Run the scoring script in a different process
+            port = random.randint(10000, 50000)
+            subprocess.Popen(["python3", "-m", "debugpy", "--listen", str(port), "run_scoring.py"] + args)
+        except Exception as e:
+            print(f"Failed to start subprocess: {e}")
 
-
-        # Run the scoring script in different process
-        subprocess.Popen(["python3", "-m", "debugpy", "--listen", str(random.randint(10000, 50000)), "run_scoring.py",
-                          s_gene, s_trigger, s_mrna, s_cell_type, s_email])
-
-        # Clear the form
+        # Clear the form data
+        input_form.email.data = ''
         input_form.gene.data = ''
         input_form.trigger.data = ''
         input_form.rna.data = ''
-        input_form.email.data = ''
         input_form.cell_type.data = ''
 
-    return render_template('generate.html', input_form=input_form, gene=gene, trigger=trigger, rna=rna, cell_type=cell_type)
+        # Optional: add a success message or redirect
+        return render_template('generate.html', input_form=input_form, success=True)
+
+    return render_template('generate.html', input_form=input_form, success=False)
 
 
 

@@ -3,55 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generated Output</title>
+    <title>Gene Data Submission</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
     {% include 'navbar.html' %} <!-- Include the navbar.html template -->
     <div class="container">
-        <h1>Form Submission</h1>
-        <form action="/generate" method="post">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>  <!-- CSRF token -->
-
-
-
+        <h1>Submit Your Data</h1>
+        <form action="{{ url_for('generate') }}" method="post">
+            {{ input_form.hidden_tag() }}
             <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" aria-label="Email">
+                {{ input_form.email.label }}
+                {{ input_form.email(class="form-control") }}
             </div>
             <div class="form-group">
-                <label for="gene">Gene</label>
-                <input type="text" class="form-control" id="gene" name="gene" placeholder="Enter gene" aria-label="Gene">
+                {{ input_form.gene.label }}
+                {{ input_form.gene(class="form-control") }}
             </div>
             <div class="form-group">
-                <label for="trigger">Trigger</label>
-                <input type="text" class="form-control" id="trigger" name="trigger" placeholder="Enter trigger" aria-label="Trigger">
+                {{ input_form.trigger.label }}
+                {{ input_form.trigger(class="form-control") }}
             </div>
             <div class="form-group">
-                <label for="mrna">mRNA</label>
-                <input type="text" class="form-control" id="mrna" name="mrna" placeholder="Enter mRNA" aria-label="mRNA">
+                {{ input_form.rna.label }}
+                {{ input_form.rna(class="form-control") }}
             </div>
             <div class="form-group">
-                <label for="cell_type">Cell Type</label>
-                <select class="form-control" id="cell_type" name="cell_type" aria-label="Cell Type">
-                    <option value="Prokaryote">Prokaryote</option>
-                    <option value="Eukaryote">Eukaryote</option>
-                </select>
+                {{ input_form.cell_type.label }}
+                {{ input_form.cell_type(class="form-control") }}
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
-
-        <!-- Feedback Section -->
-        <div id="feedback">
-            {% if gene or trigger or rna or cell_type %}
-                <p>Submitted gene: {{ gene }}</p>
-                <p>Submitted trigger: {{ trigger }}</p>
-                <p>Submitted mRNA: {{ rna }}</p>
-                <p>Submitted cell type: {{ cell_type }}</p>
-            {% else %}
-                <p>No submissions yet.</p>
-            {% endif %}
-        </div>
     </div>
 </body>
 </html>
