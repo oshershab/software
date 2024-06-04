@@ -9,6 +9,7 @@ from flask import Flask, render_template
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'taltal'
+
 csrf = CSRFProtect(app)  # Initialize CSRF protection
 
 
@@ -47,6 +48,7 @@ def generate():
 
         # Prepare the arguments for the subprocess
         args = [str(email), gene, trigger, mrna, cell_type]
+        data = {'email': email, 'gene': gene, 'trigger': trigger, 'mrna': mrna, 'cell_type': cell_type}
 
         try:
             # Run the scoring script in a different process
@@ -63,7 +65,7 @@ def generate():
         input_form.cell_type.data = ''
 
         # Optional: add a success message or redirect
-        return render_template('generate.html', input_form=input_form, success=True)
+        return render_template('generate.html', input_form=input_form, success=True, data=data)
 
     return render_template('generate.html', input_form=input_form, success=False)
 

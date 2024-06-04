@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    {% include 'navbar.html' %} <!-- Include the navbar.html template -->
     <div class="container">
         <h1>Submit Your Data</h1>
         <form action="{{ url_for('generate') }}" method="post">
@@ -34,6 +33,17 @@
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
+
+        {% if success %}
+            <div class="alert alert-success mt-3" role="alert">
+                <h4 class="alert-heading">Submission Successful!</h4>
+                <p>Email: {{ data['email'] }}</p>
+                <p>Gene: {{ data['gene'] }}</p>
+                <p>Trigger: {{ data['trigger'] }}</p>
+                <p>mRNA: {{ data['rna'] }}</p>
+                <p>Cell Type: {{ data['cell_type'] }}</p>
+            </div>
+        {% endif %}
     </div>
 </body>
 </html>
