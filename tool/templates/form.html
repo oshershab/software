@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+    {% include 'navbar.html' %} <!-- Include the navbar.html template -->
+    <div class="container">
+        <h1>Form Submission</h1>
+        <form action="/user_data_getter" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>  <!-- CSRF token -->
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" aria-label="Email">
+            </div>
+            <div class="form-group">
+                <label for="gene">Gene</label>
+                <input type="text" class="form-control" id="gene" name="gene" placeholder="Enter gene" aria-label="Gene">
+            </div>
+            <div class="form-group">
+                <label for="trigger">Trigger</label>
+                <input type="text" class="form-control" id="trigger" name="trigger" placeholder="Enter trigger" aria-label="Trigger">
+            </div>
+            <div class="form-group">
+                <label for="mrna">mRNA</label>
+                <input type="text" class="form-control" id="mrna" name="mrna" placeholder="Enter mRNA" aria-label="mRNA">
+            </div>
+            <div class="form-group">
+                <label for="cell_type">Cell Type</label>
+                <select class="form-control" id="cell_type" name="cell_type" aria-label="Cell Type">
+                    <option value="Prokaryote">Prokaryote</option>
+                    <option value="Eukaryote">Eukaryote</option>
+                </select>
+
+
+            </div>
+            <div class="form-group">
+                <label for="file"> File Upload </label>
+                    <input type="file" class="form-control" id="file" name="file" accept=".fasta">
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+
+        <!-- Feedback Section -->
+        <div id="feedback">
+            {% if gene or trigger or rna or cell_type %}
+                <p>Submitted gene: {{ gene }}</p>
+                <p>Submitted trigger: {{ trigger }}</p>
+                <p>Submitted mRNA: {{ rna }}</p>
+                <p>Submitted cell type: {{ cell_type }}</p>
+            {% else %}
+                <p>No submissions yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

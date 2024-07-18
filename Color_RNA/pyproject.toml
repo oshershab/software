@@ -1,0 +1,27 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "Color_RNA"
+version = "0.5.1"
+authors = [
+  { name="Efi Moree", email="efimoree@gmail.com"},
+  { name="Rei Mendel", email="mendel.rei@gmail.com"}
+]
+description = "A package allows for generation of colored secondary RNA structure images"
+readme = "README.md"
+license = { file="LICENSE" }
+requires-python = ">=3.7"
+dependencies = [
+  'selenium >= 4.3.0',
+  'Pillow >= 8.0.1'
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "http://www.triggate.com"
