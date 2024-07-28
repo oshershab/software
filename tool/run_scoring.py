@@ -144,7 +144,7 @@ if __name__ == '__main__':
     cell_type = sys.argv[4]
     email = sys.argv[5]
     file_dict = sys.argv[6]
-    main(gene, trigger, rna, cell_type,file_dict)
+    main(gene, trigger, rna, cell_type, file_dict)
 
 
 

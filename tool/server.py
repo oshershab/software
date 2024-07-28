@@ -25,7 +25,7 @@ class InputForm(FlaskForm):
     # todo: add validators to email?
     email = StringField("Email", [DataRequired()], render_kw={"id": "email"})
     gene = StringField("Input Gene", validators=[DataRequired()], render_kw={"id": "gene"})
-    user_trigger = BooleanField("Got a known trigger?", validators=[Length(min=20, max=40)], render_kw={"id": "user_trigger"})
+    user_trigger = BooleanField("Got a known trigger?",  render_kw={"id": "user_trigger"})
     trigger = StringField("Input Trigger", render_kw={"id": "trigger"})
     reporter_gene = StringField("Reporter Gene", render_kw={"id": "reporter_gene"})
     cell_type = SelectField("Organism Type", choices=[('Prokaryote', 'Prokaryote'), ('Eukaryote', 'Eukaryote')], render_kw={"id": "cell_type"})
@@ -39,6 +39,7 @@ def index():
 
 @app.route('/form', methods=['GET', 'POST'])
 def user_data_getter():
+    print("In form")
     email = None
     gene = None
     user_trigger_bool = False
@@ -49,6 +50,7 @@ def user_data_getter():
 
 
     input_form = InputForm()
+    print(input_form.validate_on_submit())
     if input_form.validate_on_submit():
         try:
             # Get the data from the form
@@ -62,7 +64,6 @@ def user_data_getter():
 
             # Process the file
             data_dict = generic_process_file(uploaded_file)
-
             # Assign and send the data to run_scoring.py in a subprocess
             s_email = str(email) if email else "EMPTY"
             s_gene = str(gene) if gene else "EMPTY"
@@ -70,7 +71,7 @@ def user_data_getter():
             s_mrna = str(reporter_gene) if reporter_gene else "EMPTY"
             s_cell_type = str(cell_type) if cell_type else "EMPTY"
             s_file_dict = json.dumps(data_dict) if data_dict else "EMPTY"
-
+            print(f"Email: {s_email}, Gene: {s_gene}, Trigger: {s_trigger}, mRNA: {s_mrna}, Cell Type: {s_cell_type}, File: {s_file_dict}")
             subprocess.Popen(["python3", "-m", "debugpy", "--listen", str(random.randint(10000, 50000)), "run_scoring.py",
                               s_gene, s_trigger, s_mrna, s_cell_type, s_email, s_file_dict])
 
@@ -98,5 +99,6 @@ def page_not_found(e):
 def internal_error(e):
     return render_template("500.html"), 500
 
-if __name__ == '__main__':
+if __name__ == '__main__' :
+
     app.run(debug=True, port=3000)
