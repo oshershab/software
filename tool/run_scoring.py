@@ -34,7 +34,6 @@ def find_similar_sequences(trigger: str, sequences_dict: dict[str:str]) -> Align
     aligner.match_score = 2
     aligner.mismatch_score = -1
 
-
     alignments = aligner.align(trigger, sequences_dict)
     return alignments[0]
 
@@ -47,7 +46,6 @@ def chunks(data_iter, size):
     it = iter(data_iter)
     for i in range(0, len(data_iter), size):
         yield {k: data_iter[k] for k in itertools.islice(it, size)}
-
 
 
 def run_chunks(data_path: str, func, args):
@@ -80,6 +78,7 @@ def run_chunks(data_path: str, func, args):
             with open(f'intermediate_results_[{i * n_process}, {(i + 1) * n_process})_{current_time}.pkl',
                       'wb') as f:
                 pickle.dump(res, f)
+
 
 def find_matches_fuzzy(trigg: str, data_dict, edit_distance) -> dict[str:str]:
     """"function to find matches using fuzzy search
@@ -123,18 +122,21 @@ def find_with_suffix_tree(trigg: str, data_dict: dict[str:str]) -> dict[str:str]
 
 
 
-
-def main():
-
+def main(gene, trigger, rna, cell_type, file_dict):
     """"main function to combine Peleg's code with user request
     output to be sent by email 
     """""
+    print(f"Gene: {gene}, Trigger: {trigger}, RNA: {rna}, Cell Type: {cell_type}")
+    print(f"File: {file_dict}")
+    return
 
-    pass
+
+#peleg's code
+
 
 if __name__ == '__main__':
     # Get the arguments from the user form and send to main function
-    """
+
     import sys
     gene = sys.argv[1]
     trigger = sys.argv[2]
@@ -142,14 +144,15 @@ if __name__ == '__main__':
     cell_type = sys.argv[4]
     email = sys.argv[5]
     file_dict = sys.argv[6]
-    main()
+    main(gene, trigger, rna, cell_type,file_dict)
+
+
+
     """
-    """
-    file_path = '/Users/netanelerlich/PycharmProjects/webTool/transcripts_data.pkl'
-    with open(file_path, 'rb') as file:
-        file_data = pickle.load(file)
-    """
+
+
     import time
+
     # randomize sequences for testing
     seqs_random = [''.join(np.random.choice(['A', 'C', 'G', 'T']) for _ in range(i)) for i in range(100, 100000, 1000)]
 
@@ -171,3 +174,4 @@ if __name__ == '__main__':
         plt.ylabel('Time(s)')
         plt.plot()
         plt.show()
+        """

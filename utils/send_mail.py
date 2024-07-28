@@ -6,7 +6,6 @@ from email import encoders
 
 
 
-
 def send_mail(email_adress: str, pdf_path: str):
     mail_content = '''Hello,
     Attached to this mail is a detailed PDF with the results from your switch generator job.
@@ -32,7 +31,6 @@ def send_mail(email_adress: str, pdf_path: str):
     payload = MIMEBase('application', 'octate-stream', Name=pdf_path)
     payload.set_payload((binary_pdf).read())
 
-
     # enconding the binary into base64
     encoders.encode_base64(payload)
 
@@ -48,4 +46,5 @@ def send_mail(email_adress: str, pdf_path: str):
     text = message.as_string()
     session.sendmail(sender_address, receiver_address, text)
     session.quit()
+
     return "Mail sent"

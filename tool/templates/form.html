@@ -4,60 +4,129 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Form Submission</title>
+    <style>
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 3em;
+            font-family: Trebuchet MS, sans-serif;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+
+        }
+
+        .file-drop-area {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 25px;
+            border: 2px dashed #007bff;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+        .file-drop-area.is-active {
+            background-color: rgba(125, 123, 125, 0.05);
+        }
+        .file-drop-area input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .file-drop-message {
+            font-size: 1.25rem;
+            color: #007bff;
+        }
+    </style>
 </head>
 <body>
 
     {% include 'navbar.html' %} <!-- Include the navbar.html template -->
     <div class="container">
         <h1>Form Submission</h1>
-        <form action="/user_data_getter" method="post" enctype="multipart/form-data">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>  <!-- CSRF token -->
+        <form action="{{ url_for('user_data_getter') }}" method="post" enctype="multipart/form-data">
+            {{ input_form.hidden_tag() }} <!-- CSRF token -->
 
             <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" aria-label="Email">
+                {{ input_form.email.label }}
+                {{ input_form.email(class="form-control") }}
             </div>
             <div class="form-group">
-                <label for="gene">Gene</label>
-                <input type="text" class="form-control" id="gene" name="gene" placeholder="Enter gene" aria-label="Gene">
+                {{ input_form.gene.label }}
+                {{ input_form.gene(class="form-control") }}
             </div>
             <div class="form-group">
-                <label for="trigger">Trigger</label>
-                <input type="text" class="form-control" id="trigger" name="trigger" placeholder="Enter trigger" aria-label="Trigger">
+                {{ input_form.user_trigger.label }}
+                {{ input_form.user_trigger }}
             </div>
             <div class="form-group">
-                <label for="mrna">mRNA</label>
-                <input type="text" class="form-control" id="mrna" name="mrna" placeholder="Enter mRNA" aria-label="mRNA">
+                {{ input_form.trigger.label }}
+                {{ input_form.trigger(class="form-control") }}
             </div>
             <div class="form-group">
-                <label for="cell_type">Cell Type</label>
-                <select class="form-control" id="cell_type" name="cell_type" aria-label="Cell Type">
-                    <option value="Prokaryote">Prokaryote</option>
-                    <option value="Eukaryote">Eukaryote</option>
-                </select>
+                {{ input_form.reporter_gene.label }}
+                {{ input_form.reporter_gene(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ input_form.cell_type.label }}
+                {{ input_form.cell_type(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ input_form.file.label }}
+                <div class="file-drop-area">
+                    <span class="file-drop-message">Drop files here or click to upload</span>
+                    {{ input_form.file(class="form-control-file") }}
+                </div>
+            </div>
 
-
-            </div>
-            <div class="form-group">
-                <label for="file"> File Upload </label>
-                    <input type="file" class="form-control" id="file" name="file" accept=".fasta">
-                </select>
-            </div>
-
-            <button type="submit" class="btn btn-primary">Submit</button>
+            {{ input_form.submit(class="btn btn-primary") }}
         </form>
 
         <!-- Feedback Section -->
-        <div id="feedback">
-            {% if gene or trigger or rna or cell_type %}
-                <p>Submitted gene: {{ gene }}</p>
-                <p>Submitted trigger: {{ trigger }}</p>
-                <p>Submitted mRNA: {{ rna }}</p>
-                <p>Submitted cell type: {{ cell_type }}</p>
-            {% else %}
-                <p>No submissions yet.</p>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} mt-3">
+                        {{ message }}
+                    </div>
+                {% endfor %}
             {% endif %}
-        </div>
+        {% endwith %}
     </div>
+
+    <script>
+        // JavaScript to handle drag and drop functionality
+        document.addEventListener('DOMContentLoaded', function () {
+            var fileDropArea = document.querySelector('.file-drop-area');
+            var fileInput = fileDropArea.querySelector('input[type="file"]');
+
+            fileDropArea.addEventListener('dragover', function (e) {
+                e.preventDefault();
+                fileDropArea.classList.add('is-active');
+            });
+
+            fileDropArea.addEventListener('dragleave', function (e) {
+                fileDropArea.classList.remove('is-active');
+            });
+
+            fileDropArea.addEventListener('drop', function (e) {
+                e.preventDefault();
+                fileDropArea.classList.remove('is-active');
+                var files = e.dataTransfer.files;
+                fileInput.files = files;
+            });
+
+            fileDropArea.addEventListener('click', function () {
+                fileInput.click();
+            });
+        });
+    </script>
 </body>
 </html>
