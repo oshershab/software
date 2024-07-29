@@ -50,8 +50,6 @@ class PDF(FPDF):
         self.image(link='', type='', w=700/5, h=450/5)
 
 
-
-
 #Efi's added function for loading json to the right format
 def load_pipline_results(path):
     with open(path, 'r') as f:

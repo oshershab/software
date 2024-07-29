@@ -101,6 +101,8 @@ def find_matches_fuzzy(trigg: str, data_dict, edit_distance) -> dict[str:str]:
             sub_seqs_dict[seq_name] = seq_match_mapping
     return sub_seqs_dict
 
+
+
 def find_with_suffix_tree(trigg: str, data_dict: dict[str:str]) -> dict[str:str]:
     """"function to find matches using suffix tree
     :param trigg: trigger sequence
@@ -144,32 +146,42 @@ if __name__ == '__main__':
     cell_type = sys.argv[4]
     email = sys.argv[5]
     file_dict = sys.argv[6]
+
+
+
     main(gene, trigger, rna, cell_type, file_dict)
 
 
 
     """
-
-
     import time
-
     # randomize sequences for testing
     seqs_random = [''.join(np.random.choice(['A', 'C', 'G', 'T']) for _ in range(i)) for i in range(100, 100000, 1000)]
 
-    times_random_fuzzy = []
-    times_random_suffix = []
-
+    times_random_fuzzy_1 = []
+    times_random_suffix_1 = []
+    
+    times_random_fuzzy_2 = []
+    times_random_suffix_2 = []
+    
     # for each edit distance, find the time complexity of the fuzzy search and suffix tree search
-    for i in range(2):
-        for seq in seqs_random:
-            # randomize the trigger sequence
-            trigger = random.randrange(20, len(seq))
+    # randomize the trigger sequence
+    trigger = random.randrange(20, len(seq))
+    
+    for i in range(1,2):
+        for seq in seqs_random:        
             start1 = time.time()
             find_near_matches(trigger, seq, max_l_dist=i)
             end1 = time.time()
             times_random_fuzzy.append(end1 - start1)
-
+            
+            
+            //change the trigger sequence to a suffix tree
+            //suffix_tree search time complexity
+            
+            
         plt.plot(range(100, 100000, 1000), times_random_fuzzy)
+
         plt.title(f'Fuzzy search time complexity, edit distance= {i}')
         plt.ylabel('Time(s)')
         plt.plot()
