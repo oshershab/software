@@ -121,9 +121,6 @@ def find_with_suffix_tree(trigg: str, data_dict: dict[str:str]) -> dict[str:str]
             raise f"Error in finding matches for {seq_name} with error {e}"
     return sub_seqs_dict
 
-
-
-
 def main(gene, trigger, rna, cell_type, file_dict):
     """"main function to combine Peleg's code with user request
     output to be sent by email 
@@ -131,7 +128,6 @@ def main(gene, trigger, rna, cell_type, file_dict):
     print(f"Gene: {gene}, Trigger: {trigger}, RNA: {rna}, Cell Type: {cell_type}")
     print(f"File: {file_dict}")
     return
-
 
 #peleg's code
 
