@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Form Submission</title>
+    <style>
+        h1 {
+            margin-bottom: 20px;
+            font-size: 3em;
+            font-family: Trebuchet MS, sans-serif;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .file-drop-area {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 25px;
+            border: 2px dashed #007bff;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+        .file-drop-area.is-active {
+            background-color: rgba(125, 123, 125, 0.05);
+        }
+        .file-drop-area input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .file-drop-message {
+            font-size: 1.25rem;
+            color: #007bff;
+        }
+        .file-list {
+            margin-top: 10px;
+        }
+        .file-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+        .remove-file-button {
+            background: none;
+            border: none;
+            color: #007bff;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %} <!-- Include the navbar.html template -->
+    <div class="container">
+        <h1>Form Submission</h1>
+        <form action="{{ url_for('user_data_getter') }}" method="post" enctype="multipart/form-data">
+            {{ input_form.hidden_tag() }} <!-- CSRF token -->
+
+            <div class="form-group">
+                {{ input_form.email.label }}
+                {{ input_form.email(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ input_form.gene.label }}
+                {{ input_form.gene(class="form-control") }}
+            </div>
+            <div class="form-group" data-toggle="tooltip" title="Mark in case the desired target contains mutation">
+                {{ input_form.user_trigger.label }}
+                {{ input_form.user_trigger }}
+            </div>
+            <div class="form-group" data-toggle="tooltip" title="Enter the target sequence with the mutation. 20-40 nuc">
+                {{ input_form.trigger.label }}
+                {{ input_form.trigger(class="form-control") }}
+            </div>
+            <div class="form-group" data-toggle="tooltip" title="Enter the reporter gene.">
+                {{ input_form.reporter_gene.label }}
+                {{ input_form.reporter_gene(class="form-control") }}
+            </div>
+            <div class="form-group" data-toggle="tooltip" title="Specify the organism that hosts the Toehold-Target construct.">
+                {{ input_form.cell_type.label }}
+                {{ input_form.cell_type(class="form-control") }}
+            </div>
+            <div class="form-group" data-toggle="tooltip" title="File format '.fasta', Organism genome will be used in the absence of a file.">
+                {{ input_form.file.label }}
+                <div class="file-drop-area">
+                    <span class="file-drop-message">Drop files here or click to upload</span>
+                    {{ input_form.file(class="form-control-file") }}
+                </div>
+                <div class="file-list"></div>
+            </div>
+
+            {{ input_form.submit(class="btn btn-primary") }}
+        </form>
+
+        <!-- Feedback Section -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} mt-3">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Initialize tooltips
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+
+        // JavaScript to handle drag and drop functionality
+        document.addEventListener('DOMContentLoaded', function () {
+            var fileDropArea = document.querySelector('.file-drop-area');
+            var fileInput = fileDropArea.querySelector('input[type="file"]');
+            var fileList = document.querySelector('.file-list');
+
+            function updateFileList(files) {
+                fileList.innerHTML = '';
+                for (var i = 0; i < files.length; i++) {
+                    (function (index) {
+                        var listItem = document.createElement('div');
+                        listItem.classList.add('file-list-item');
+                        listItem.textContent = files[index].name;
+
+                        var removeButton = document.createElement('button');
+                        removeButton.classList.add('remove-file-button');
+                        removeButton.textContent = 'Remove';
+                        removeButton.addEventListener('click', function () {
+                            removeFile(index);
+                        });
+
+                        listItem.appendChild(removeButton);
+                        fileList.appendChild(listItem);
+                    })(i);
+                }
+            }
+
+            function removeFile(index) {
+                var dt = new DataTransfer();
+                var files = fileInput.files;
+
+                for (var i = 0; i < files.length; i++) {
+                    if (i !== index) {
+                        dt.items.add(files[i]);
+                    }
+                }
+
+                fileInput.files = dt.files;
+                updateFileList(fileInput.files);
+            }
+
+            fileDropArea.addEventListener('dragover', function (e) {
+                e.preventDefault();
+                fileDropArea.classList.add('is-active');
+            });
+
+            fileDropArea.addEventListener('dragleave', function (e) {
+                fileDropArea.classList.remove('is-active');
+            });
+
+            fileDropArea.addEventListener('drop', function (e) {
+                e.preventDefault();
+                fileDropArea.classList.remove('is-active');
+                var files = e.dataTransfer.files;
+                var dt = new DataTransfer();
+
+                for (var i = 0; i < fileInput.files.length; i++) {
+                    dt.items.add(fileInput.files[i]);
+                }
+
+                for (var i = 0; i < files.length; i++) {
+                    dt.items.add(files[i]);
+                }
+
+                fileInput.files = dt.files;
+                updateFileList(fileInput.files);
+            });
+
+            fileInput.addEventListener('change', function () {
+                console.log(fileInput.files); // Debugging line
+                updateFileList(fileInput.files);
+            });
+
+            fileDropArea.addEventListener('click', function () {
+                fileInput.click();
+            });
+        });
+    </script>
+</body>
+</html>
