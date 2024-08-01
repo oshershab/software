@@ -54,8 +54,8 @@ def user_data_getter():
 
 
     input_form = InputForm()
-    bool = True
-    if bool:
+
+    if input_form.validate():
         print("Form submitted")
         try:
             # Get the data from the form

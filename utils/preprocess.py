@@ -236,11 +236,18 @@ if __name__ == '__main__':
         # if file does not exist -> use the data base default off target
 
 
-    gene = sys.argv[1]
-    trigger = sys.argv[2]
+    gene = sys.argv[1]  # pick window
+    trigger = sys.argv[2] # toehold
+
     reporter = sys.argv[3]
-    cell_type = sys.argv[4]
-    email = sys.argv[5]
     file_dict = sys.argv[6]
+
+
+    cell_type = sys.argv[4] # cell type: how to deal with reporter on different organisem?
+                            # ribozom starting site
+                            # off ratio -> similar sequences
+
+    
+    email = sys.argv[5]
     main(gene, trigger, reporter, cell_type, file_dict, email)
 
