@@ -9,6 +9,7 @@ from multiprocessing import Pool
 from itertools import combinations
 
 import matplotlib.pyplot as plt
+import numpy as np
 from Bio import Align
 from fuzzysearch import find_near_matches
 from utils.suffix_tree import Suffixtree
@@ -186,9 +187,8 @@ def gen_mutations(trigger: str, sub: int) -> dict[str, int]:
         trigger_muts[mutated_trigger] = mutated_index
 
     return trigger_muts
-def construct_dummy_seq(trigger_muts: dict[str, tuple[int, ...]]):
+def construct_dummy_seq(trigger_muts: dict[str, int]) -> tuple[str, dict[str, tuple[int, int, int]]]:
     trig_n = len(trigger_muts)
-    trig_len = len(list(trigger_muts.keys())[0])
     n_list = random.sample(range(1, trig_n * 10), trig_n)
 
     fillers = []
@@ -203,7 +203,7 @@ def construct_dummy_seq(trigger_muts: dict[str, tuple[int, ...]]):
         start_index = len(dummy_seq)
         dummy_seq += trig
         end_index = len(dummy_seq)
-        mut_trigger_mapping[trig] = (start_index, end_index)
+        mut_trigger_mapping[trig] = (start_index, end_index, mut_index)
 
     return dummy_seq, mut_trigger_mapping
 
@@ -250,6 +250,7 @@ def main(gene, trigger, rna, cell_type, file_dict,email):
     return
 
 
+
 if __name__ == '__main__':
     # Get the arguments from the user form and send to main function
     # 1. no trigger and gene present-> find window in gene -> find similar sequences in the off target -> make toehold.
@@ -257,33 +258,31 @@ if __name__ == '__main__':
         # if file exist -> use the file to off target
         # if file does not exist -> use the data base default off target
 
+
     """
     gene = sys.argv[1]  # pick window
     trigger = sys.argv[2] # toehold
 
     reporter = sys.argv[3]
     file_dict = sys.argv[6]
-
-
+    
     cell_type = sys.argv[4] # cell type: how to deal with reporter on different organisem?
                             # ribozom starting site
                             # off ratio -> similar sequences
-
-
     email = sys.argv[5]
     main(gene, trigger, reporter, cell_type, file_dict, email)
     """
-    test_res, muts_mapping, dummy_seq = test_fuzzy_search(trig_len=20, sub=2)
-    print(f'dummy seq: {dummy_seq}')
-    print(f'muts mapping: {muts_mapping}')
-    print(f'test res: {test_res}')
+    trig_len= 20
+    test_res, muts_mapping, dummy_seq = test_fuzzy_search(trig_len=trig_len, sub=2)
+    #print(f'dummy seq: {dummy_seq}')
+    #print(f'muts mapping: {muts_mapping}')
+    #print(f'test res: {test_res}')
 
-    for key, value in muts_mapping.items():
-        for sub_seq, loc in test_res.items():
-            if loc[0] == value[0] and loc[1] == value[1]:
-                muts_mapping[key] = True
+    for mut_trigg, mut_loc in muts_mapping.items():
+        for res_trigg, res_loc in test_res.items():
+            if mut_loc[0] == res_loc[0] and mut_loc[1] == res_loc[1]:
+                muts_mapping[mut_trigg] = all(np.array(list(mut_trigg)) == np.array(list(res_trigg)))
 
-    print(f'test res: {test_res}')
-    print(f'muts mapping: {muts_mapping}')
+    print(f'All mutated trigger found: {all(muts_mapping.values())}')
 
 
