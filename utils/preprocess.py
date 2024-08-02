@@ -137,30 +137,6 @@ def find_with_suffix_array(trigger, data_dict):
     return off_target
 
 
-def main(gene, trigger, rna, cell_type, file_dict,email):
-    print(f"Gene: {gene}, Reporter: {trigger}, RNA: {rna}, Cell Type: {cell_type}")
-    """"main function to combine Peleg's code with user request
-    output to be sent by email 
-    """""
-    if file_dict != "EMPTY":
-        try:
-            data_dict = json.loads(file_dict)
-        except json.JSONDecodeError:
-            data_dict = {}
-    else:
-        data_dict = {}
-    print(f"Data dict: {data_dict}")
-    print("processing off target sequences for the trigger sequence")
-    regular = False
-    if regular:
-        off_target = find_matches_fuzzy(trigger, data_dict, 2)
-    else:
-        off_target = find_with_suffix_array(trigger, data_dict)
-    body = "Thank you for using our service. We are processing your request and will send you the results shortly. \n\nPROtech Team"
-    temp = ''
-    email_msg = send_email_with_attachment(email, "Processed Files", body,[temp])
-    send_email(email_msg)
-    return
 
 def homo_sapiance_search_plot():
     path = '/Users/netanelerlich/PycharmProjects/webTool/data/transcripts_data.pkl'
@@ -193,39 +169,85 @@ def homo_sapiance_search_plot():
     plt.ylabel('Time in seconds')
     plt.show()
 
-def test_fuzzy_search():
-    max = 1000
-    seq = ''.join([random.choice(['A', 'C', 'G', 'T']) for _ in range(max)])
-    trigger = ''.join([random.choice(['A', 'C', 'G', 'T']) for _ in range(20)])
-    trigger = list(trigger)
-    indexes_permutation = list(combinations(range(20), 1))
+def gen_mutations(trigger: str, sub: int) -> dict[str, int]:
+    trig_len = len(trigger)
+    indexes_permutation = list(combinations(range(trig_len), sub))
     nucleotides = ['A', 'C', 'G', 'T']
-
-    print(f'indexes {indexes_permutation}')
     trigger_muts = {}
+
     for mutated_index in indexes_permutation:
-        nuc_idx = mutated_index[0]
+        trig_char_list = list(trigger)
+        for nuc_idx in mutated_index:
+            choices = nucleotides.copy()
+            nuc = trig_char_list[nuc_idx]
+            choices.remove(nuc)
+            trig_char_list[nuc_idx] = random.choice(choices)
+        mutated_trigger = ''.join(trig_char_list)
+        trigger_muts[mutated_trigger] = mutated_index
 
-        choices = nucleotides.copy()
-        nuc = trigger[nuc_idx]
-        choices.pop(choices.index(nuc))
+    return trigger_muts
+def construct_dummy_seq(trigger_muts: dict[str, tuple[int, ...]]):
+    trig_n = len(trigger_muts)
+    trig_len = len(list(trigger_muts.keys())[0])
+    n_list = random.sample(range(1, trig_n * 10), trig_n)
 
-        trigger[nuc_idx] = random.choice(choices)
-        mutated_trigger = ''.join(trigger)
-        trigger_muts[mutated_trigger] = nuc_idx
+    fillers = []
+    for x in n_list:
+        filler_seq = ''.join(random.choice(['A', 'C', 'G', 'T']) for _ in range(x))
+        fillers.append(filler_seq)
 
-        print(f"Mutated trigger: {mutated_trigger} at index {nuc_idx}")
+    dummy_seq = ''
+    mut_trigger_mapping = {}
+    for trig, mut_index in trigger_muts.items():
+        dummy_seq += fillers.pop(0)
+        start_index = len(dummy_seq)
+        dummy_seq += trig
+        end_index = len(dummy_seq)
+        mut_trigger_mapping[trig] = (start_index, end_index)
 
-    test_dict = {}
-    for mutated_seq in trigger_muts:
-        test_dict[mutated_seq] = False
-        res = find_near_matches(mutated_seq, seq, max_insertions=0, max_deletions=0, max_l_dist=1)
-        for match in res:
-            if match.start == trigger_muts[mutated_seq][0] and match.end == trigger_muts[mutated_seq][1]:
-                test_dict[mutated_seq] = True
-                break
-    if all(test_dict.values()):
-        print('All mutations were found')
+    return dummy_seq, mut_trigger_mapping
+
+def test_fuzzy_search(trig_len: int, sub: int):
+    trigger = ''.join([random.choice(['A', 'C', 'G', 'T']) for _ in range(trig_len)])
+    mutated_triggers = gen_mutations(trigger, sub)
+    dummy_seq, muts_mapping = construct_dummy_seq(mutated_triggers)
+    test = find_near_matches(trigger, dummy_seq, max_deletions=0, max_insertions=0, max_substitutions=sub, max_l_dist=sub)
+
+
+    test_res = {}
+    for match in test:
+        start = match.start
+        end = match.end
+        sub_seq = dummy_seq[start:end]
+        test_res[sub_seq] = (start, end)
+    return test_res, muts_mapping, dummy_seq
+
+
+
+def main(gene, trigger, rna, cell_type, file_dict,email):
+    print(f"Gene: {gene}, Reporter: {trigger}, RNA: {rna}, Cell Type: {cell_type}")
+    """"main function to combine Peleg's code with user request
+    output to be sent by email 
+    """""
+    if file_dict != "EMPTY":
+        try:
+            data_dict = json.loads(file_dict)
+        except json.JSONDecodeError:
+            data_dict = {}
+    else:
+        data_dict = {}
+    print(f"Data dict: {data_dict}")
+    print("processing off target sequences for the trigger sequence")
+    regular = False
+    if regular:
+        off_target = find_matches_fuzzy(trigger, data_dict, 2)
+    else:
+        off_target = find_with_suffix_array(trigger, data_dict)
+    body = "Thank you for using our service. We are processing your request and will send you the results shortly. \n\nPROtech Team"
+    temp = ''
+    email_msg = send_email_with_attachment(email, "Processed Files", body,[temp])
+    send_email(email_msg)
+    return
 
 
 if __name__ == '__main__':
@@ -235,7 +257,7 @@ if __name__ == '__main__':
         # if file exist -> use the file to off target
         # if file does not exist -> use the data base default off target
 
-
+    """
     gene = sys.argv[1]  # pick window
     trigger = sys.argv[2] # toehold
 
@@ -247,7 +269,21 @@ if __name__ == '__main__':
                             # ribozom starting site
                             # off ratio -> similar sequences
 
-    
+
     email = sys.argv[5]
     main(gene, trigger, reporter, cell_type, file_dict, email)
+    """
+    test_res, muts_mapping, dummy_seq = test_fuzzy_search(trig_len=20, sub=2)
+    print(f'dummy seq: {dummy_seq}')
+    print(f'muts mapping: {muts_mapping}')
+    print(f'test res: {test_res}')
+
+    for key, value in muts_mapping.items():
+        for sub_seq, loc in test_res.items():
+            if loc[0] == value[0] and loc[1] == value[1]:
+                muts_mapping[key] = True
+
+    print(f'test res: {test_res}')
+    print(f'muts mapping: {muts_mapping}')
+
 

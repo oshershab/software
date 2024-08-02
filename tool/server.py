@@ -50,9 +50,6 @@ def user_data_getter():
     file = None
     gene = None
 
-
-
-
     input_form = InputForm()
 
     if input_form.validate():
