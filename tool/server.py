@@ -24,11 +24,11 @@ app.config['UPLOAD_EXTENSIONS'] = ['.fasta']
 class InputForm(FlaskForm):
     # todo: add validators to email?
     email = StringField("Email", [DataRequired()], render_kw={"id": "email"})
-    gene = StringField("Input Gene",  render_kw={"id": "gene"})
+    gene = StringField("Input Gene", validators=[DataRequired()], render_kw={"id": "gene"})
     user_trigger = BooleanField("Got a known trigger?",  render_kw={"id": "user_trigger"})
     trigger = StringField("Input Trigger", render_kw={"id": "trigger"})
-    reporter_gene = StringField("Reporter Gene", [DataRequired()], render_kw={"id": "reporter_gene"})
-    cell_type = SelectField("Organism Type", choices=[('Prokaryote', 'Prokaryote'), ('Eukaryote', 'Eukaryote')], render_kw={"id": "cell_type"})
+    reporter_gene = StringField("Reporter Gene", render_kw={"id": "reporter_gene"})
+    cell_type = SelectField("Organism Type", choices=[('-','-'),('Prokaryote', 'Prokaryote'), ('Eukaryote', 'Eukaryote'),('Homo sapiens', 'Homo sapiens')], render_kw={"id": "cell_type"})
     file = FileField('File', render_kw={"id": "file"})
     submit = SubmitField("Submit")
 
